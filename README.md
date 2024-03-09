@@ -5,7 +5,7 @@ git clone https://github.com/asxklm/Belajar_Analisis_Data_dengan_Python.git
 ```
 2. Buka direktori proyek
 ```
-cd data-analyst-dicoding
+cd Belajar_Analisis_Data_dengan_Python
 ```
 3. Instal paket Python yang diperlukan dengan menjalankan:
 ```
