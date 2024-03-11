@@ -1,10 +1,12 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 # Load the data
 # Gantilah 'path/to/visualized_data.csv' dengan path sesuai dengan file CSV Anda
 df = pd.read_csv('./dataframe.csv')
+df_geo = pd.read_csv('./geolocation.csv')
 
 # Fungsi untuk menghasilkan visualisasi barang yang banyak terjual
 def visualize_top_sold_products(df):
@@ -20,37 +22,27 @@ def visualize_top_sold_products(df):
     ax.set_xticklabels(product_sales.head(10).index, rotation=45, ha='right')
     st.pyplot(fig)
 
-# Fungsi untuk menghasilkan visualisasi barang dengan keuntungan terbesar
-def visualize_most_profitable_products(df):
-    df['profit'] = df['price'] - df['freight_value']
-    cheap_products = df[df['price'] < df['price'].mean()]
-    expensive_products = df[df['price'] >= df['price'].mean()]
-
-    cheap_profit = cheap_products['profit'].mean()
-    expensive_profit = expensive_products['profit'].mean()
-
-    st.write("Explanation:")
-    st.write(f"The product category with expensive products generates higher average profits than the cheap ones.")
-
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax.bar(['Cheap Products', 'Expensive Products'], [cheap_profit, expensive_profit], color=['skyblue', 'salmon'])
-    ax.set_title('Average Profit Comparison')
-    ax.set_xlabel('Product Price Range')
-    ax.set_ylabel('Average Profit')
-    ax.set_ylim(0, max(cheap_profit, expensive_profit) * 1.2)
-    st.pyplot(fig)
-
-# Membaca data dari file atau sumber data lainnya
-# Misalnya df = pd.read_csv('nama_file.csv')
+# Fungsi untuk menghasilkan visualisasi persebaran barang
+def visualize_product_distribution_map(df_geo):
+    st.write("Product Sales Distribution Map")
+    fig = px.scatter_mapbox(df_geo.drop_duplicates(subset='customer_unique_id'), 
+                            lat="geolocation_lat", lon="geolocation_lng", 
+                            hover_name="geolocation_city", hover_data=["geolocation_state"],
+                            zoom=3, height=600)
+    fig.update_layout(mapbox_style="open-street-map")
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+    st.plotly_chart(fig)
 
 # Menampilkan judul dan deskripsi
 st.title('Product Analysis Dashboard')
-st.write("This dashboard presents visualizations of product data including top sold products and most profitable products.")
+st.write("This dashboard presents visualizations of product data including top sold products and products distribution maps.")
 
 # Menampilkan visualisasi barang yang banyak terjual
 st.header('Top Sold Products')
 visualize_top_sold_products(df)
+st.write("The best-selling product is cama_mesa_banho or bed_bath_table")
 
 # Menampilkan visualisasi barang dengan keuntungan terbesar
-st.header('Most Profitable Products')
-visualize_most_profitable_products(df)
+st.header('Products Distribution Maps')
+visualize_product_distribution_map(df_geo)
+st.write("The distribution of products is dominated by Brazil, especially in the southeast and south regions, with the highest concentration in the capital city.")
